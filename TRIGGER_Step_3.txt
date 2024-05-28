@@ -1,0 +1,52 @@
+DELIMITER // 
+CREATE TRIGGER before_insert_sample_invoice
+before INSERT ON sample_invoice
+FOR EACH ROW
+DELIMITER // 
+CREATE TRIGGER before_insert_sample_invoice
+before INSERT ON sample_invoice
+FOR EACH ROW
+BEGIN
+declare v_invoicenumber int; 
+declare v_inv_date VARCHAR(100);
+declare v_Carrier_id VARCHAR(100);
+declare v_Account_no int;
+declare v_Amount int;
+declare v_Invoice_date VARCHAR(100);
+declare v_Customername VARCHAR(100);
+declare v_No_of_pallets int;
+declare v_Stocktype  VARCHAR(50); 
+declare i int; declare v_barcode_seq varchar(200);
+declare vv_carrierid VARCHAR(100);
+declare vv_seq_value VARCHAR(100);
+
+ select InvoiceNumber,Carrier_id,Account_no,Amount,Invoice_date,Customername,No_of_pallets,Stocktype
+   into v_InvoiceNumber,v_Carrier_id,v_Account_no,v_Amount,v_Invoice_date,v_Customername,v_No_of_pallets,v_Stocktype 
+   from sample_invoice where invoicenumber = NEW.invoicenumber and Carrier_id = NEW.Carrier_id; #-- carrier_id conditon is optional.
+ select carrierid,seq_value into vv_carrierid, vv_seq_value from connote_seq where carrierid = NEW.Carrier_id and seq_year = substr(NEW.Invoice_date, -2, 2);
+#Connote_Seq
+if vv_carrierid is null then 
+insert into connote_seq (carrierid,seq_value) values (NEW.Carrier_id, 1,substr(NEW.Invoice_date, -2, 2));
+elseif vv_carrierid is not null then 
+set NEW.connote = concat(substr(NEW.Invoice_date, -2, 2),lpad(vv_seq_value,length(vv_seq_value)+4,0));  
+set NEW.Altconnote = concat(substr(NEW.Account_no, 1, 4),lpad(vv_seq_value,length(vv_seq_value)+5,0)); 
+ if NEW.Altconnote is null then 
+   set i = 1; set v_barcode_seq = '';
+   while i <= NEW.No_of_pallets do
+    SET v_barcode_seq = concat(v_barcode_seq,concat(NEW.connote,NEW.Stocktype,'-00',i));
+    SET i = i+1;
+   END WHILE;
+ # SET NEW.Barcodes = substr(v_barcode_seq,-1,length(v_barcode_seq)-1); #concat(NEW.connote,NEW.Stocktype,v_barcode_seq);
+ else 
+   set i = 1; set v_barcode_seq = '';
+   while i <= NEW.No_of_pallets do
+    SET v_barcode_seq = concat(v_barcode_seq,concat(NEW.Altconnote,NEW.Stocktype,'-00',i),' ',',',' ');
+    SET i = i+1;
+   END WHILE;
+  SET NEW.Barcodes = substr(v_barcode_seq,1,length(v_barcode_seq)-2); #concat(NEW.connote,NEW.Stocktype,v_barcode_seq);  SUBSTRING(value, 1, LENGTH(value) - 1) AS new_value
+ end if; 
+UPDATE Connote_Seq SET seq_value=LAST_INSERT_ID(seq_value+1) where carrierid = NEW.Carrier_id and seq_year = substr(NEW.Invoice_date, -2, 2);
+end if;
+    #SET NEW.order_date = NOW();
+END //
+DELIMITER ;

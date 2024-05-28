@@ -1,0 +1,42 @@
+Requirement is that, create a trigger which will auto insert the value in 3 columns of a table in MY-SQL enviornment:
+Complete requirement:
+There is a table 'sample_invoice' having below columns in it:
+
+1.InvoiceNumber --> Normal insertion (via insert into)
+2.Carrier_id    --> Normal insertion (via insert into)
+3.Account_no    --> Normal insertion (via insert into)
+4.Amount        --> Normal insertion (via insert into)  
+5.Invoice_date  --> Normal insertion (via insert into)  
+6.Customername  --> Normal insertion (via insert into)  
+7.No_of_pallets --> Normal insertion (via insert into)  
+8.Stocktype     --> Normal insertion (via insert into)  
+9.Connote       --> insert data via trigger (NEW.<>)
+10.AltConnote   --> insert data via trigger (NEW.<>)
+11.Barcodes     --> insert data via trigger (NEW.<>)
+------------------------------------------------------------
+We will only insert values for the first 7 columns that is InvoiceNumber,Carrier_id,Account_no,Amount,Invoice_date,Customername,No_of_pallets,Stocktype, 
+the insertion of connote, altconnote and barcode will happen via trigger.
+
+Logic of producing the data for the columns connote, altconnote and barcode:
+ 
+ Connote:   This has to be populated for each new line using a sequence restarting at the begining of the year : YYNNNNN, here YY- year e.g. 24, NNNNN - sequence number e.g. 0001 so Connote will be 240001. 
+            Year will come from the column Invoice_date.
+
+ AltConnote:  This has to be populated for each new line using a sequence restarting at the begining of the year : AAAANNNNN , here AAAA- account number e.g. 123444, NNNNN - sequence number e.g. 00001 so Connote will be 12344400001.
+              Account number will come from the coulmn Account_no.
+			  
+ Barcodes : The format will be CONNOTEX-NNN, Here
+            CONNOTE- is a First connote if Altconnote is blank. Otherwise, Altconnote to be used.(CONNOTE and ALTCONNOTE is comming from above explained columns.)
+            X- is the Stocktype, its either H-Hanger or S-STocktype, 
+			NNN- is the sequence number 
+ So if we have three pallets of stocktype i.e. 'S' where Connote is T2401523 then below barcodes will be generated and assigned in a column Barcodes as comma sepearted check below sample value:  
+ Column value(BARCODE): T2401523S-001,T2401523S-002,T2401523S-003 
+--------------------------------------------------------------
+
+Create a BEFORE TRIGGER, which will automatically produce the data for last 3 columns(connote, altconnote,barcodes) based on the values of first 7 columns(InvoiceNumber,Carrier_id,Account_no,Amount,Invoice_date,Customername,No_of_pallets,Stocktype)
+and insert the data for last 3 columns(connote, altconnote,barcodes).
+
+Hint, as we are using sequence restart concept, so you can use autoincrement concept or create the logic inside the trigger it-self for this.
+---------------------------------------------------------------
+You can refer to step_2 txt file for inserting sample data for the tables, or you can try it by your-self also.
+-----------------------------------------------------------The End----------------------------------------------------

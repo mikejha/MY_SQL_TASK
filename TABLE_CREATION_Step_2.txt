@@ -1,0 +1,62 @@
+#Table creation with dummy data insertion:
+#TABLE 1: `sample_invoice`
+CREATE TABLE `sample_invoice` (
+  `InvoiceNumber` varchar(20) DEFAULT NULL,
+  `Carrier_id` varchar(100) DEFAULT NULL,
+  `account_no` int DEFAULT NULL,
+  `Amount` int DEFAULT NULL,
+  `Invoice_Date` varchar(20) DEFAULT NULL,
+  `CustomerName` varchar(200) DEFAULT NULL,
+  `no_of_pallets` varchar(100) DEFAULT NULL,
+  `stocktype` varchar(100) DEFAULT NULL,
+  `Connote` varchar(20) DEFAULT NULL,
+  `AltConnote` varchar(20) DEFAULT NULL,
+  `Barcodes` varchar(200) DEFAULT NULL
+); #--opotional:ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+#Table 2: `connote_seq`
+CREATE TABLE `connote_seq` (
+  `carrierid` varchar(100) DEFAULT NULL,
+  `seq_value` int DEFAULT NULL,
+  `seq_year` int DEFAULT NULL
+);#--opotional: ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+#Data insertion: 
+#For table `connote_seq`:
+INSERT INTO Connote_Seq (carrierid,seq_value,seq_year) VALUES ('jat',902,22);
+INSERT INTO Connote_Seq (carrierid,seq_value,seq_year) VALUES ('aussiefast',15035,22);
+INSERT INTO Connote_Seq (carrierid,seq_value,seq_year) VALUES ('bass',4512,22);
+
+INSERT INTO Connote_Seq (carrierid,seq_value,seq_year) VALUES ('jat',1,23);
+INSERT INTO Connote_Seq (carrierid,seq_value,seq_year) VALUES ('aussiefast',1,23);
+INSERT INTO Connote_Seq (carrierid,seq_value,seq_year) VALUES ('bass',1,23);
+
+INSERT INTO Connote_Seq (carrierid,seq_value,seq_year) VALUES ('jat',1,24);
+INSERT INTO Connote_Seq (carrierid,seq_value,seq_year) VALUES ('aussiefast',1,24);
+INSERT INTO Connote_Seq (carrierid,seq_value,seq_year) VALUES ('bass',1,24);
+
+#For table `sample_invoice`:(AFTER STEP 3 THAT IS CREATION OF TRIGGER, RUN BELOW INSERTION)
+# Note: After creation of TRIGGER(STEP 3), Run below insertion for desired output(NOTE: Connote, Altconnote, Barcodes columns will be generated from TRIGGERS, NOT BY INSERT INTO, thats why Connote, Altconnote, Barcodes are not present in below insertion(i.e. commented)):
+
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype) #, Connote, Altconnote, Barcodes)#, Connote, AltConnote, Barcodes) 
+VALUES (1, 'jat', 999, 10, '01-01-2022','Adam',2,'S');
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype) #, Connote, Altconnote, Barcodes)#, Connote, AltConnote, Barcodes) 
+VALUES (1, 'aussiefast', 999, 10, '01-01-2022','CUST2',3,'S');
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype) #, Connote, Altconnote, Barcodes)#, Connote, AltConnote, Barcodes) 
+VALUES (1, 'bass', 999, 10, '01-01-2022','CUST3',2,'S');
+
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype) #, Connote, Altconnote, Barcodes)#, Connote, AltConnote, Barcodes) 
+VALUES (2, 'jat', 999, 10, '01-01-2023','Adam',3,'H');
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype) #, Connote, Altconnote, Barcodes)#, Connote, AltConnote, Barcodes) 
+VALUES (2, 'aussiefast', 999, 10, '01-01-2023','CUST2',1,'S');
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype) #, Connote, Altconnote, Barcodes)#, Connote, AltConnote, Barcodes) 
+VALUES (2, 'bass', 999, 10, '01-01-2023','CUST3',2,'S');
+
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype) #, Connote, Altconnote, Barcodes)#, Connote, AltConnote, Barcodes) 
+VALUES (3, 'jat', 999, 10, '01-01-2024','Adam',3,'H');
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype) #, Connote, Altconnote, Barcodes)#, Connote, AltConnote, Barcodes) 
+VALUES (3, 'aussiefast', 999, 10, '01-01-2024','CUST2',3,'H');
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype) #, Connote, Altconnote, Barcodes)#, Connote, AltConnote, Barcodes) 
+VALUES (3, 'bass', 999, 10, '01-01-2024','CUST3',3,'S');
+
+#--------The End---------#
