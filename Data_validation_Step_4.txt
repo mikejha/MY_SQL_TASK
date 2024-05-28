@@ -4,16 +4,16 @@ select * from Connote_Seq;
 
 #OUTPUT:
 
-carrierid	seq_value	seq_year
-jat	        902	        22
-aussiefast	15035	    22
-bass	    4512	    22
+carrierid	  seq_value	seq_year
+jat	        902	      22
+aussiefast	 15035	    22
+bass	       4512	     22
 jat	        1	        23
-aussiefast	1	        23
-bass	    1	        23
+aussiefast	 1	        23
+bass	       1	        23
 jat	        1	        24
-aussiefast	1	        24
-bass	    1	        24
+aussiefast	 1	        24
+bass	       1	        24
 
 #Now, Executing the script of TRIGGER (step 3).
 
@@ -23,16 +23,16 @@ select * from sample_invoice;
 
 #OUTPUT:
 
-InvoiceNumber	Carrier_id	account_no	Amount	Invoice_Date	CustomerName	no_of_pallets	stocktype	Connote	      AltConnote	    Barcodes
-1	            jat	        999	        10	    01-01-2022	    Adam	        2	            S	        220000902	  99900000902	    99900000902S-001 , 99900000902S-002
-1	            aussiefast	999	        10	    01-01-2022	    CUST2	        3	            S	        22000015035	  9990000015035 	9990000015035S-001 , 9990000015035S-002 , 9990000015035S-003
-1	            bass	    999	        10	    01-01-2022	    CUST3	        2	            S	        2200004512	  999000004512	    999000004512S-001 , 999000004512S-002
-2	            jat	        999	        10	    01-01-2023	    Adam	        3	            H	        2300001	      999000001		    999000001H-001 , 999000001H-002 , 999000001H-003
-2	            aussiefast	999	        10	    01-01-2023	    CUST2	        1	            S	        2300001	      999000001		    999000001S-001
-2	            bass	    999	        10	    01-01-2023	    CUST3	        2	            S	        2300001	      999000001		    999000001S-001 , 999000001S-002
-3	            jat	        999	        10	    01-01-2024	    Adam	        3	            H	        2400001	      999000001		    999000001H-001 , 999000001H-002 , 999000001H-003
-3	            aussiefast	999	        10	    01-01-2024	    CUST2	        3	            H	        2400001	      999000001		    999000001H-001 , 999000001H-002 , 999000001H-003
-3	            bass	    999	        10	    01-01-2024	    CUST3	        3	            S	        2400001	      999000001		    999000001S-001 , 999000001S-002 , 999000001S-003
+InvoiceNumber	Carrier_id	 account_no	 Amount	Invoice_Date	  CustomerName 	no_of_pallets 	stocktype	 Connote	      AltConnote	    Barcodes
+1	            jat	        999	        10	    01-01-2022	    Adam	         2	             S	         220000902	    99900000902	   99900000902S-001 , 99900000902S-002
+1	            aussiefast	 999	        10	    01-01-2022	    CUST2	        3	             S	         22000015035	  9990000015035  9990000015035S-001 , 9990000015035S-002 , 9990000015035S-003
+1	            bass	       999	        10	    01-01-2022	    CUST3	        2	             S	         2200004512	   999000004512	  999000004512S-001 , 999000004512S-002
+2	            jat	        999	        10	    01-01-2023	    Adam	         3	             H	         2300001	      999000001		    999000001H-001 , 999000001H-002 , 999000001H-003
+2	            aussiefast	 999	        10	    01-01-2023	    CUST2	        1	             S	         2300001	      999000001		    999000001S-001
+2	            bass	       999	        10	    01-01-2023	    CUST3	        2	             S	         2300001	      999000001		    999000001S-001 , 999000001S-002
+3	            jat	        999	        10	    01-01-2024	    Adam	         3	             H	         2400001	      999000001		    999000001H-001 , 999000001H-002 , 999000001H-003
+3	            aussiefast	 999	        10	    01-01-2024	    CUST2	        3	             H	         2400001	      999000001		    999000001H-001 , 999000001H-002 , 999000001H-003
+3	            bass	       999	        10	    01-01-2024	    CUST3	        3	             S	         2400001	      999000001		    999000001S-001 , 999000001S-002 , 999000001S-003
 
 #Now, validate your data with the provided data, specially for the last 3 columns(Connote,AltConnote,Barcodes) which is getting generated from the TRIGGER.
 /*
@@ -47,16 +47,16 @@ select * from Connote_Seq;
 
 #OUTPUT:
 
-carrierid	seq_value	seq_year
-jat	        903	        22
-aussiefast	15036	    22
-bass	    4513	    22
+carrierid	  seq_value	seq_year
+jat	        903	      22
+aussiefast	 15036	    22
+bass	       4513	     22
 jat	        2	        23
-aussiefast	2	        23
-bass	    2	        23
+aussiefast	 2	        23
+bass	       2	        23
 jat	        2	        24
-aussiefast	2	        24
-bass	    2	        24
+aussiefast	 2	        24
+bass	       2	        24
 
 /*
  You can see the difference in the column seq_value, all the values are increased by 1, hence logic is working fine,if carrier_id is present in the table Connote_Seq,
