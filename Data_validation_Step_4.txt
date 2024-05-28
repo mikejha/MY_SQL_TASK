@@ -66,4 +66,4 @@ bass	       2	        24
 
 #MATCH YOUR DATA FOR EVERY STEPS AND VALIDATE THAT TRIGGER IS PERFORMING FINE OR NOT..Thank me later :) 
 
-#--------THE-END---------#
+#-----------THE-END------------#
