@@ -1,0 +1,258 @@
+---ORACLE SOLUTION FOR SAME REQUIREMENT---
+--------------------------------------
+STEP_1: It is same as present in REQUIREMENT_STEP_1 file.
+--------------------------------------
+STEP_2: TABLE CREATION AND INSERTION:
+
+-- Table 1: sample_invoice
+CREATE TABLE sample_invoice (
+  InvoiceNumber VARCHAR2(20),
+  Carrier_id VARCHAR2(100),
+  account_no NUMBER,
+  Amount NUMBER,
+  Invoice_Date VARCHAR2(20),
+  CustomerName VARCHAR2(200),
+  no_of_pallets VARCHAR2(100),
+  stocktype VARCHAR2(100),
+  Connote VARCHAR2(20),
+  AltConnote VARCHAR2(20),
+  Barcodes VARCHAR2(200)
+);
+
+-- Table 2: connote_seq
+CREATE TABLE connote_seq (
+  carrierid VARCHAR2(100),
+  seq_value NUMBER,
+  seq_year NUMBER
+);
+
+--select * from connote_seq,sample_invoice;
+
+--insertion for connote_seq:
+INSERT INTO connote_seq (carrierid, seq_value, seq_year) VALUES ('jat', 902, 22);
+INSERT INTO connote_seq (carrierid, seq_value, seq_year) VALUES ('aussiefast', 15035, 22);
+INSERT INTO connote_seq (carrierid, seq_value, seq_year) VALUES ('bass', 4512, 22);
+
+INSERT INTO connote_seq (carrierid, seq_value, seq_year) VALUES ('jat', 1, 23);
+INSERT INTO connote_seq (carrierid, seq_value, seq_year) VALUES ('aussiefast', 1, 23);
+INSERT INTO connote_seq (carrierid, seq_value, seq_year) VALUES ('bass', 1, 23);
+
+INSERT INTO connote_seq (carrierid, seq_value, seq_year) VALUES ('jat', 1, 24);
+INSERT INTO connote_seq (carrierid, seq_value, seq_year) VALUES ('aussiefast', 1, 24);
+INSERT INTO connote_seq (carrierid, seq_value, seq_year) VALUES ('bass', 1, 24);
+
+--(BELOW INSERTION WILL HAPPEN AFTER CREATION OF TRIGGER):
+--insertion for sample_invoice:
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype)
+VALUES ('1', 'jat', 999, 10, '01-01-2022', 'Adam', '2', 'S');
+
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype)
+VALUES ('1', 'aussiefast', 999, 10, '01-01-2022', 'CUST2', '3', 'S');
+
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype)
+VALUES ('1', 'bass', 999, 10, '01-01-2022', 'CUST3', '2', 'S');
+
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype)
+VALUES ('2', 'jat', 999, 10, '01-01-2023', 'Adam', '3', 'H');
+
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype)
+VALUES ('2', 'aussiefast', 999, 10, '01-01-2023', 'CUST2', '1', 'S');
+
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype)
+VALUES ('2', 'bass', 999, 10, '01-01-2023', 'CUST3', '2', 'S');
+
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype)
+VALUES ('3', 'jat', 999, 10, '01-01-2024', 'Adam', '3', 'H');
+
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype)
+VALUES ('3', 'aussiefast', 999, 10, '01-01-2024', 'CUST2', '3', 'H');
+
+INSERT INTO sample_invoice (InvoiceNumber, Carrier_id, account_no, Amount, Invoice_Date, CustomerName, no_of_pallets, stocktype)
+VALUES ('3', 'bass', 999, 10, '01-01-2024', 'CUST3', '3', 'S');
+--------------------------------------
+STEP_3:
+--TRIGGER CREATION:
+(--3 ARE THERE, 1ST: Refactored by me, 2ND: MY_SQL TRIGGER, 3RD: GPT REFACTORED.)
+
+--1ST:
+create or replace trigger before_insert_sample_invoice
+  before INSERT 
+  on  sample_invoice
+  for each row
+declare
+  v_invoicenumber int; 
+  v_inv_date VARCHAR(100);
+  v_Carrier_id VARCHAR(100);
+  v_Account_no int;
+  v_Amount int;
+  v_Invoice_date VARCHAR(100);
+  v_Customername VARCHAR(100);
+  v_No_of_pallets int;
+  v_Stocktype  VARCHAR(50); 
+  i int; 
+  v_barcode_seq varchar(200);
+  vv_carrierid VARCHAR(100);
+  vv_seq_value VARCHAR(100);
+begin
+  /*declare maya int:=8;*/--: You cannot use declare inside the begin block.
+-- NOTE: You need to add if condition before below into clause because in ORACLE it will fail with NO DATA FOUND error.(select count(*) into v_count can be used.) 
+ --select InvoiceNumber,Carrier_id,Account_no,Amount,Invoice_date,Customername,No_of_pallets,Stocktype
+ --  into v_InvoiceNumber,v_Carrier_id,v_Account_no,v_Amount,v_Invoice_date,v_Customername,v_No_of_pallets,v_Stocktype 
+ --  from sample_invoice where invoicenumber = :NEW.invoicenumber and Carrier_id = :NEW.Carrier_id; --#-- carrier_id conditon is optional.
+ select carrierid,seq_value into vv_carrierid, vv_seq_value from connote_seq where carrierid = :NEW.Carrier_id and seq_year = substr(:NEW.Invoice_date, -2, 2);
+--#Connote_Seq
+if vv_carrierid is null then 
+insert into connote_seq (carrierid,seq_value,seq_year) values (:NEW.Carrier_id, 1,substr(:NEW.Invoice_date, -2, 2));
+elsif vv_carrierid is not null then 
+/*set*/ :NEW.connote := concat(substr(:NEW.Invoice_date, -2, 2),lpad(vv_seq_value,length(vv_seq_value)+4,0));  
+/*set*/ :NEW.Altconnote := concat(substr(:NEW.Account_no, 1, 4),lpad(vv_seq_value,length(vv_seq_value)+5,0)); 
+ if :NEW.Altconnote is null then 
+   /*set*/ i := 1; /*set*/ v_barcode_seq := '';
+   while i <= :NEW.No_of_pallets /*do*/ loop
+    /*set*/ v_barcode_seq := v_barcode_seq||:NEW.connote||:NEW.Stocktype||'-00'||i ;  /*concat(v_barcode_seq,concat(:NEW.connote,:NEW.Stocktype,'-00',i));*/
+    /*set*/ i := i+1;
+   END loop/*WHILE*/;
+ --# SET NEW.Barcodes = substr(v_barcode_seq,-1,length(v_barcode_seq)-1); #concat(NEW.connote,NEW.Stocktype,v_barcode_seq);
+ else 
+   /*set*/ i := 1; /*set*/ v_barcode_seq := '';
+   while i <= :NEW.No_of_pallets /*do*/ loop
+    /*set*/ v_barcode_seq := v_barcode_seq||:NEW.connote||:NEW.Stocktype||'-00'||i||' '||','||' '; /* concat(v_barcode_seq,concat(NEW.Altconnote,NEW.Stocktype,'-00',i),' ',',',' ');*/
+    /*set*/ i := i+1;
+   END loop/*WHILE*/;
+  /*set*/ :NEW.Barcodes := substr(v_barcode_seq,1,length(v_barcode_seq)-2); --#concat(NEW.connote,NEW.Stocktype,v_barcode_seq);  SUBSTRING(value, 1, LENGTH(value) - 1) AS new_value
+ end if; 
+UPDATE Connote_Seq set seq_value =/*LAST_INSERT_ID*/(seq_value+1) where carrierid = :NEW.Carrier_id and seq_year = substr(:NEW.Invoice_date, -2, 2);
+end if;
+
+end ;
+--2ND:
+/*
+CREATE TRIGGER before_insert_sample_invoice
+before INSERT ON sample_invoice
+FOR EACH ROW
+BEGIN
+declare v_invoicenumber int; 
+declare v_inv_date VARCHAR(100);
+declare v_Carrier_id VARCHAR(100);
+declare v_Account_no int;
+declare v_Amount int;
+declare v_Invoice_date VARCHAR(100);
+declare v_Customername VARCHAR(100);
+declare v_No_of_pallets int;
+declare v_Stocktype  VARCHAR(50); 
+declare i int; declare v_barcode_seq varchar(200);
+declare vv_carrierid VARCHAR(100);
+declare vv_seq_value VARCHAR(100);
+
+ select InvoiceNumber,Carrier_id,Account_no,Amount,Invoice_date,Customername,No_of_pallets,Stocktype
+   into v_InvoiceNumber,v_Carrier_id,v_Account_no,v_Amount,v_Invoice_date,v_Customername,v_No_of_pallets,v_Stocktype 
+   from sample_invoice where invoicenumber = NEW.invoicenumber and Carrier_id = NEW.Carrier_id; #-- carrier_id conditon is optional.
+ select carrierid,seq_value into vv_carrierid, vv_seq_value from connote_seq where carrierid = NEW.Carrier_id and seq_year = substr(NEW.Invoice_date, -2, 2);
+#Connote_Seq
+if vv_carrierid is null then 
+insert into connote_seq (carrierid,seq_value) values (NEW.Carrier_id, 1,substr(NEW.Invoice_date, -2, 2));
+elseif vv_carrierid is not null then 
+set NEW.connote = concat(substr(NEW.Invoice_date, -2, 2),lpad(vv_seq_value,length(vv_seq_value)+4,0));  
+set NEW.Altconnote = concat(substr(NEW.Account_no, 1, 4),lpad(vv_seq_value,length(vv_seq_value)+5,0)); 
+ if NEW.Altconnote is null then 
+   set i = 1; set v_barcode_seq = '';
+   while i <= NEW.No_of_pallets do
+    SET v_barcode_seq = concat(v_barcode_seq,concat(NEW.connote,NEW.Stocktype,'-00',i));
+    SET i = i+1;
+   END WHILE;
+ # SET NEW.Barcodes = substr(v_barcode_seq,-1,length(v_barcode_seq)-1); #concat(NEW.connote,NEW.Stocktype,v_barcode_seq);
+ else 
+   set i = 1; set v_barcode_seq = '';
+   while i <= NEW.No_of_pallets do
+    SET v_barcode_seq = concat(v_barcode_seq,concat(NEW.Altconnote,NEW.Stocktype,'-00',i),' ',',',' ');
+    SET i = i+1;
+   END WHILE;
+  SET NEW.Barcodes = substr(v_barcode_seq,1,length(v_barcode_seq)-2); #concat(NEW.connote,NEW.Stocktype,v_barcode_seq);  SUBSTRING(value, 1, LENGTH(value) - 1) AS new_value
+ end if; 
+UPDATE Connote_Seq SET seq_value=LAST_INSERT_ID(seq_value+1) where carrierid = NEW.Carrier_id and seq_year = substr(NEW.Invoice_date, -2, 2);
+end if;
+    #SET NEW.order_date = NOW();
+END //
+*/
+--3RD:
+/*
+--CHAT GPT LOGIC:(MR PERFECTONIST)
+CREATE OR REPLACE TRIGGER before_insert_sample_invoice
+BEFORE INSERT ON sample_invoice
+FOR EACH ROW
+DECLARE
+  v_invoicenumber sample_invoice.InvoiceNumber%TYPE;
+  v_inv_date VARCHAR2(100);
+  v_Carrier_id sample_invoice.Carrier_id%TYPE;
+  v_Account_no sample_invoice.account_no%TYPE;
+  v_Amount sample_invoice.Amount%TYPE;
+  v_Invoice_date VARCHAR2(100);
+  v_Customername sample_invoice.CustomerName%TYPE;
+  v_No_of_pallets sample_invoice.no_of_pallets%TYPE;
+  v_Stocktype sample_invoice.stocktype%TYPE;
+  i INT;
+  v_barcode_seq VARCHAR2(200);
+  vv_carrierid connote_seq.carrierid%TYPE;
+  vv_seq_value connote_seq.seq_value%TYPE;
+BEGIN
+  BEGIN
+    SELECT InvoiceNumber, Carrier_id, Account_no, Amount, Invoice_date, Customername, No_of_pallets, Stocktype
+    INTO v_invoicenumber, v_Carrier_id, v_Account_no, v_Amount, v_Invoice_date, v_Customername, v_No_of_pallets, v_Stocktype 
+    FROM sample_invoice
+    WHERE InvoiceNumber = :NEW.InvoiceNumber AND Carrier_id = :NEW.Carrier_id;
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      -- Handle no data found if necessary
+      NULL;
+  END;
+
+  BEGIN
+    SELECT carrierid, seq_value
+    INTO vv_carrierid, vv_seq_value
+    FROM connote_seq
+    WHERE carrierid = :NEW.Carrier_id AND seq_year = SUBSTR(:NEW.Invoice_date, -2, 2);
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      vv_carrierid := NULL;
+      vv_seq_value := NULL;
+  END;
+
+  IF vv_carrierid IS NULL THEN
+    INSERT INTO connote_seq (carrierid, seq_value, seq_year)
+    VALUES (:NEW.Carrier_id, 1, SUBSTR(:NEW.Invoice_date, -2, 2));
+  ELSIF vv_carrierid IS NOT NULL THEN
+    :NEW.connote := SUBSTR(:NEW.Invoice_date, -2, 2) || LPAD(vv_seq_value, LENGTH(vv_seq_value) + 4, '0');
+    :NEW.Altconnote := SUBSTR(:NEW.Account_no, 1, 4) || LPAD(vv_seq_value, LENGTH(vv_seq_value) + 5, '0');
+
+    IF :NEW.Altconnote IS NULL THEN
+      i := 1;
+      v_barcode_seq := '';
+      WHILE i <= :NEW.No_of_pallets LOOP
+        v_barcode_seq := v_barcode_seq || :NEW.connote || :NEW.Stocktype || '-00' || i;
+        i := i + 1;
+      END LOOP;
+      -- Remove the last character
+      :NEW.Barcodes := SUBSTR(v_barcode_seq, 1, LENGTH(v_barcode_seq) - 1);
+    ELSE
+      i := 1;
+      v_barcode_seq := '';
+      WHILE i <= :NEW.No_of_pallets LOOP
+        v_barcode_seq := v_barcode_seq || :NEW.Altconnote || :NEW.Stocktype || '-00' || i || ' ' || ',' || ' ';
+        i := i + 1;
+      END LOOP;
+      -- Remove the last two characters
+      :NEW.Barcodes := SUBSTR(v_barcode_seq, 1, LENGTH(v_barcode_seq) - 2);
+    END IF;
+
+    UPDATE connote_seq
+    SET seq_value = seq_value + 1
+    WHERE carrierid = :NEW.Carrier_id AND seq_year = SUBSTR(:NEW.Invoice_date, -2, 2);
+  END IF;
+END;
+/
+*/
+--------------------------------------
+STEP_4: DATAVALIDATION, its same only as file Data_validation_Step_4.
+--------------------------------------
+--------------------------------------THE -END-------------------------------------
+
