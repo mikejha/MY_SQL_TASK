@@ -26,7 +26,7 @@ declare vv_seq_value VARCHAR(100);
  select carrierid,seq_value into vv_carrierid, vv_seq_value from connote_seq where carrierid = NEW.Carrier_id and seq_year = substr(NEW.Invoice_date, -2, 2);
 #Connote_Seq
 if vv_carrierid is null then 
-insert into connote_seq (carrierid,seq_value) values (NEW.Carrier_id, 1,substr(NEW.Invoice_date, -2, 2));
+insert into connote_seq (carrierid,seq_value,seq_year) values (NEW.Carrier_id, 1,substr(NEW.Invoice_date, -2, 2));
 elseif vv_carrierid is not null then 
 set NEW.connote = concat(substr(NEW.Invoice_date, -2, 2),lpad(vv_seq_value,length(vv_seq_value)+4,0));  
 set NEW.Altconnote = concat(substr(NEW.Account_no, 1, 4),lpad(vv_seq_value,length(vv_seq_value)+5,0)); 
